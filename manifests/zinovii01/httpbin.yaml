@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zinovii01
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpbin
+  namespace: zinovii01
+spec:
+  selector:
+    app: httpbin
+  ports:
+    - protocol: "TCP"
+      name: httpbin
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: httpbin
+  namespace: zinovii01
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: httpbin
+      labels:
+        app: httpbin
+    spec:
+      containers:
+        - image: "citizenstig/httpbin"
+          name: httpbin
+          ports:
+          - containerPort: 8000
+            name: httpbin
+          livenessProbe:
+            httpGet:
+              path: /get
+              port: 8000
+            initialDelaySeconds: 30
+            timeoutSeconds: 2
+            periodSeconds: 60
